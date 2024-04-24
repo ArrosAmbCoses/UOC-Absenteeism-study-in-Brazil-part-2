@@ -1,0 +1,1061 @@
+---
+title: 'Mineria de dades: PRA2 - Projecte de mineria de dades'
+author: "Autor: Àlex Franco Granell"
+date: "Maig 2022"
+output:
+  html_document:
+    highlight: default
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+    toc_depth: 2
+    includes:
+      in_header: 05.584-PEC-header.html
+  word_document: default
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+******
+# Enunciat
+******
+
+Com a continuació de l'estudi iniciat a la Pràctica 1, procedim a **aplicar models analítics** sobre el joc de dades seleccionat i preparat. En aquesta **Pràctica 2** s'aconsella adjuntar els “chunks” de la part de preparació prèvia, exemple (neteja, discretització, normalització, PCA/SVD etc.), o si no carrega només les dades prèviament preparades.
+
+
+* **(Punt comú per a tots els exercicis)**
+
+En tots els punts successius es demana a l'estudiant, a més d'aplicar els diferents mètodes, d'analitzar correctament el problema, **detallar de manera exhaustiva** ressaltant el perquè i com s'ha realitzat, incloent-hi elements visuals, explicant els resultats, realitzar les comparatives oportunes amb les seues conclusions.
+
+
+Per a totes les PRA és necessari documentar a cada apartat de l'exercici pràctic que s'ha fet, per què s'ha fet i com s'ha fet. Així mateix, totes les decisions i conclusions hauran de ser presentades de forma raonada i clara, **contextualitzant els resultats**, és a dir, especificant tots i cadascun dels passos que s'hagin dut a terme per resoldre'ls.
+
+**NOTA**: *En aquesta activitat utilitzarem al mateix dataset un mètode no supervisat i supervisat*.
+
+
+D'aquesta manera es demana a l'estudiant que completi els passos següents:
+
+1. Aplicar un model **no supervisat** i basat en el concepte de distància, sobre el joc de dades.
+
+2. Aplicar de nou el model anterior, però usant una **mètrica de distància diferent** i comparar-ne els resultats.
+
+3. S'apliquen els algorismes **DBSCAN i OPTICS**, es proven amb diferents valors d'eps i es comparen els resultats amb els mètodes anteriors.
+
+4. Aplicar un model de generació de regles a partir de **arbres de decisió** ajustant les diferents opcions de creació com sense i amb opcions de poda o boosting i comparar-ne els resultats.
+
+5. Aplicar un **model supervisat** diferent de l'anterior a triar dels vistos al material docent. Comparar el resultat amb el model generat anterior.
+
+6. Identificar eventuals **limitacions** del dataset seleccionat i **analitzar els riscos** per al cas d'ús.
+
+
+******
+# Criteris d'avaluació
+******
+
+* Exercici 1 - 25%
+  - Es genera un model no supervisat.
+  - S'analitzen, mostren i comenten les mesures de qualitat del model generat.
+  - Es comenten les conclusions.
+
+* Exercici 2 - 10%
+  - Es genera de nou el model no supervisat anterior, però usant una mètrica de distància diferent.
+  - Es mostren i es comenten les mesures de qualitat del model generat.
+  - Addicionalment es comparen els dos models no supervisats amb mètriques de distància diferents.
+  - Es comenten les conclusions.
+
+* Exercici 3 - 10%
+  - S'apliquen els algorismes DBSCAN i OPTICS de forma correcta.
+  - Es proven, descriuen i interpreten els resultats amb diferents valors d'eps.
+  - S'obté una mesura de com és de bo l'agrupament.
+  - Es comparen els resultats obtinguts dels models anteriors i DBSCAN.
+  - Es comenten les conclusions.
+
+* Exercici 4 - 25%
+  - Es generen regles i es comenten i interpreten les més significatives.
+  - Extraiem les regles del model en format text i gràfic.
+  - Addicionalment, es genera matriu de confusió per mesurar la capacitat predictiva de l'algoritme.
+  - Es comparen i interpreten els resultats (sense i amb opcions de poda o boosting), explicant els avantatges i els inconvenients del model generat respecte a un altre mètode de construcció.
+  - S'avalua la taxa d'error a cada nivell d'arbre, l'eficiència en classificació (a les fases de training, validació i test) i la comprensibilitat.
+  - Es comenten les conclusions.
+
+* Exercici 5 - 10%
+  - Prova amb una variació o un altre enfocament algorítmic.
+  - Es detalla, comenta i avalua la qualitat de classificació.
+  - Es comparen i es comenten els resultats de manera exhaustiva amb el mètode de construcció anterior.
+
+* Exercici 6 - 10%
+  - Identifica quines possibles limitacions tenen les dades que has seleccionat per obtenir conclusions amb els models (supervisat i no supervisat)
+  - S'identifiquen possibles riscos de fer servir el model (mínim 300 paraules).
+  
+* Consideració general - 10%
+  - Es presenta el codi i és fàcilment reproduïble.
+  - Es detalla cada pregunta correctament, mostrant el codi, comentant com s'ha fet i perquè s'ha fet, comparant els resultats i/o indicant altres alternatives al problema indicat.
+  - Es mostren les conclusions a cada apartat
+  - S'indiquen eventuals citacions bibliogràfiques, fonts internes/externes i materials de recerca.
+
+******
+# Recursos de programació
+******
+* Incloem en aquest apartat una llista de recursos de programació per a mineria de dades on podreu trobar exemples, idees i inspiració:
+  + [Material addicional del llibre: Mineria de dades Models i Algorismes](http://oer.uoc.edu/libromd/)
+  + [Espai de recursos UOC per a ciència de dades](http://datascience.recursos.uoc.edu/es/)
+  + [Cercador de codi R](https://rseek.org/)
+  + [Col·lecció de cheatsheets en R](https://rstudio.com/resources/cheatsheets/)
+  
+******
+# Format i data de lliurament
+******
+
+El format de lliurament és: **username_estudiant-PRA2** *.Rmd* i l'**output generat** en un d'aquests formats *html/doc/docx/odt/pdf*.
+
+
+S'ha de lliurar la PRA a la bústia de lliuraments de l'aula en format comprimit que inclou els fitxers:
+- executable
+- output
+- el dataset seleccionat o en el seu defecte indicar la ruta per a baixar a l'executable.
+
+******
+# Nota: Propietat intel·lectual
+******
+
+> Sovint és inevitable, en produir una obra multimèdia, fer ús de recursos creats per terceres persones. És per tant comprensible fer-ho en el marc d'una pràctica dels estudis d'Informàtica, Multimèdia i Telecomunicació de la UOC, sempre que això es documenti clarament i no suposi plagi en la pràctica.
+
+> Per tant, en presentar una pràctica que faci ús de recursos aliens, s'ha de presentar juntament amb ella un document en el que es detallin tots ells, especificant el nom de cada recurs, el seu autor, el lloc on es va obtenir i el seu estatus legal: si l'obra aquesta protegida pel copyright o s'acull a alguna altra llicència d'ús (Creative Commons, llicència GNU, GPL ...).
+L'estudiant haurà d'assegurar-se que la llicència no impedeix específicament el seu ús en el marc de la pràctica. En cas de no trobar la informació corresponent haurà d'assumir que l'obra aquesta protegida per copyright.
+
+> Haureu, a més, adjuntar els fitxers originals quan les obres utilitzades siguin digitals, i el seu codi font si correspon.
+
+***
+
+# Respostes
+Primerament, per la resolució de l'exercici, tractaré les dades com a la pràctica 1 per aconseguir el mateix punt de partida.
+
+```{r}
+# Carregue llibreries:
+if (!require('cluster')) install.packages('cluster')
+library(cluster)
+
+if (!require('factoextra')) install.packages('factoextra'); library('factoextra')
+
+if (!require('dbscan')) install.packages('dbscan'); library('dbscan')
+# Referència: https://cran.r-project.org/web/packages/dbscan/readme/README.html
+
+if(!require(DescTools)){
+    install.packages('DescTools', repos='http://cran.us.r-project.org')
+    library(DescTools)
+}
+
+if(!require(C50)){
+    install.packages('C50', repos='http://cran.us.r-project.org')
+    library(C50)
+}
+
+if(!require(class)){
+    install.packages('class', repos='http://cran.us.r-project.org')
+    library(class)
+}
+```
+
+
+```{r}
+# carregue les dades
+AbsentismeBase <- read.csv('./dades_pra_1/Absentisme.csv', sep=';')
+
+# Transformacions del dataset:
+# Eliminem els valors de la columna 'Reason.for.absence' == 0
+AbsentismeBase<-AbsentismeBase[!(AbsentismeBase$Reason.for.absence==0),]
+
+# Eliminem els valors de la columna 'Month.of.absence" == 0
+AbsentismeBase<-AbsentismeBase[!(AbsentismeBase$Month.of.absence==0),]
+
+# Esborrem la columna 'Seasons':
+Absentisme<-AbsentismeBase[-c(5)]
+
+# Eliminem els valors extrems de la columna 'Absenteeism.time.in.hours':
+# Primer els valors iguals a 0
+Absentisme<-Absentisme[!(Absentisme$Absenteeism.time.in.hours==0),]
+# Després els valors majors a 8
+Absentisme<-Absentisme[!(Absentisme$Absenteeism.time.in.hours>8),]
+
+AbsentismeNormal <- Absentisme
+AbsentismeNormal<-AbsentismeNormal[-c(1,2)]
+AbsentismeNormal<-AbsentismeNormal[-c(9)]
+
+# Normalitzacions:
+
+# Normalitzem per diferència la columna 'Transportation.expense':
+Absentisme$Transportation.expense = (Absentisme$Transportation.expense-min(Absentisme$Transportation.expense))/(max(Absentisme$Transportation.expense)-min(Absentisme$Transportation.expense))
+
+# Normalitzem per diferència la columna 'Transportation.expense':
+Absentisme$Transportation.expense = (Absentisme$Transportation.expense-min(Absentisme$Transportation.expense))/(max(Absentisme$Transportation.expense)-min(Absentisme$Transportation.expense))
+
+# Normalitzem per diferència la columna 'Distance.from.Residence.to.Work':
+Absentisme$Distance.from.Residence.to.Work = (Absentisme$Distance.from.Residence.to.Work-min(Absentisme$Distance.from.Residence.to.Work))/(max(Absentisme$Distance.from.Residence.to.Work)-min(Absentisme$Distance.from.Residence.to.Work))
+
+# Normalitzem per diferència la columna 'Service.time':
+Absentisme$Service.time = (Absentisme$Service.time-min(Absentisme$Service.time))/(max(Absentisme$Service.time)-min(Absentisme$Service.time))
+             
+# Normalitzem per diferència la columna 'Work.load.Average/day':
+Absentisme$Work.load.Average.day = (Absentisme$Work.load.Average.day-min(Absentisme$Work.load.Average.day))/(max(Absentisme$Work.load.Average.day)-min(Absentisme$Work.load.Average.day))
+
+# Normalitzem per diferència la columna 'Hit.target':
+Absentisme$Hit.target = (Absentisme$Hit.target-min(Absentisme$Hit.target))/(max(Absentisme$Hit.target)-min(Absentisme$Hit.target))
+
+# Transformació final:
+# Esborrem la columna 'ID' i 'Reason.for.absence':
+AbsentismeFinal<-Absentisme[-c(1,2)]
+AbsentismeFinal<-AbsentismeFinal[-c(9)]
+
+# Segona normalització:
+Abs_Norm <- AbsentismeFinal
+
+# Normalitzem per diferència la columna 'Month.of.absence':
+Abs_Norm$Month.of.absence = (Abs_Norm$Month.of.absence-min(Abs_Norm$Month.of.absence))/(max(Abs_Norm$Month.of.absence)-min(Abs_Norm$Month.of.absence))
+
+# Normalitzem per diferència la columna 'Day.of.the.week':
+Abs_Norm$Day.of.the.week = (Abs_Norm$Day.of.the.week-min(Abs_Norm$Day.of.the.week))/(max(Abs_Norm$Day.of.the.week)-min(Abs_Norm$Day.of.the.week))
+
+# Normalitzem per diferència la columna 'Age':
+Abs_Norm$Age = (Abs_Norm$Age-min(Abs_Norm$Age))/(max(Abs_Norm$Age)-min(Abs_Norm$Age))
+
+# Normalitzem per diferència la columna 'Education':
+Abs_Norm$Education = (Abs_Norm$Education-min(Abs_Norm$Education))/(max(Abs_Norm$Education)-min(Abs_Norm$Education))
+
+# Normalitzem per diferència la columna 'Son':
+Abs_Norm$Son = (Abs_Norm$Son-min(Abs_Norm$Son))/(max(Abs_Norm$Son)-min(Abs_Norm$Son))
+
+# Normalitzem per diferència la columna 'Pet':
+Abs_Norm$Pet = (Abs_Norm$Pet-min(Abs_Norm$Pet))/(max(Abs_Norm$Pet)-min(Abs_Norm$Pet))
+
+# Normalitzem per diferència la columna 'Weight':
+Abs_Norm$Weight = (Abs_Norm$Weight-min(Abs_Norm$Weight))/(max(Abs_Norm$Weight)-min(Abs_Norm$Weight))
+
+# Normalitzem per diferència la columna 'Height':
+Abs_Norm$Height = (Abs_Norm$Height-min(Abs_Norm$Height))/(max(Abs_Norm$Height)-min(Abs_Norm$Height))
+
+# Normalitzem per diferència la columna 'Body.mass.index':
+Abs_Norm$Body.mass.index = (Abs_Norm$Body.mass.index-min(Abs_Norm$Body.mass.index))/(max(Abs_Norm$Body.mass.index)-min(Abs_Norm$Body.mass.index))
+
+# Normalitzem per diferència la columna 'Absenteeism.time.in.hours':
+Abs_Norm$Absenteeism.time.in.hours = (Abs_Norm$Absenteeism.time.in.hours-min(Abs_Norm$Absenteeism.time.in.hours))/(max(Abs_Norm$Absenteeism.time.in.hours)-min(Abs_Norm$Absenteeism.time.in.hours))
+
+# Elimine datasets redundants:
+remove(Absentisme)
+remove(AbsentismeBase)
+```
+
+Com es pot llegir al codi, genere tres datasets principalment. El primer Abs_Norm amb totes les dades normalitzades per la diferència; després AbsentismeFinal amb les dades numèriques principals normalitzades; i finalment AbsentismeNormal amb les dades sense normalitzar.
+
+Recordem que l'objectiu d'aquest projecte de mineria de dades és aconseguir informació útil per al departament de recursos humans del nostre client. Recordem també, que estaven interessats en perfils professionals per assegurar la rentabilitat de la seua inversió. Per tant, amb els següents model, pretenem agrupar als treballadors en grups per definir tipus, i classificar als treballadors segons si ens interessa contractar-los, o no.
+
+Per tal de poder discernir entre aquells treballadors que ens interessen i els que no, vaig a establir un criteri mínim de contractació. Si el treballador ha faltat menys, o igual, de dos hores al treball es considerarà que és una falta normal que pot estar causada per transit, o inconvenients puntuals. Tots aquells treballadors que hagen faltat al treball més de dues hores seran considerats com a treballadors poc productius per al nostre client.
+
+Per tant la norma serà:
+
+- El treballador es contracta: <= 2
+- El treballador no es contracta > 2
+
+```{r}
+# Modifique ara els datasets per aconseguir aquestes dades:
+
+# Marque "contractar" com 1
+# Marque "no contractar" com 2
+
+# AbsentismeFinal
+AbsentismeFinal$Absenteeism.time.in.hours[AbsentismeFinal$Absenteeism.time.in.hours <= 2] <- 1
+AbsentismeFinal$Absenteeism.time.in.hours[AbsentismeFinal$Absenteeism.time.in.hours > 2] <- 2
+
+# AbsentismeNormal
+AbsentismeNormal$Absenteeism.time.in.hours[AbsentismeNormal$Absenteeism.time.in.hours <= 2] <- 1
+AbsentismeNormal$Absenteeism.time.in.hours[AbsentismeNormal$Absenteeism.time.in.hours > 2] <- 2
+
+
+# Abs_Norm
+Abs_Norm <- Abs_Norm[-c(17)]
+Abs_Norm$Absentisme <- AbsentismeFinal$Absenteeism.time.in.hours
+
+```
+
+Adicionalment, vaig a fer una selecció de les columnes més interessants per la construcció dels models. Faig açò perquè hi havia dades correlacionades entre elles i és més interessant reduïr el nombre de variables.
+
+Faré aquesta selecció a partir dels resultats de la Pra_1 de correlacions, dels resultats de la PCA, i calcularé ara la significància estadística sobre el target. Amb tot, espere poder reduïr el nombre de columnes dels datasets.
+
+```{r}
+# Cree taules de contingència i calcule la seua significància estadística. Com sols hi ha dos valors possibles per les taules, els test de cramer i phi dónen el mateix resultat. Sols faré el de cramer per agilitzar
+
+# Columna 1:
+taula_col1 <- table(Abs_Norm$Month.of.absence, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col1)
+
+# Columna 2:
+taula_col2 <- table(Abs_Norm$Day.of.the.week, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col2)
+
+# Columna 3:
+taula_col3 <- table(Abs_Norm$Transportation.expense, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col3)
+
+# Columna 4:
+taula_col4 <- table(Abs_Norm$Distance.from.Residence.to.Work, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col4)
+
+# Columna 5:
+taula_col5 <- table(Abs_Norm$Service.time, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col5)
+
+# Columna 6:
+taula_col6 <- table(Abs_Norm$Age, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col6)
+
+# Columna 7:
+taula_col7 <- table(Abs_Norm$Work.load.Average.day, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col7)
+
+# Columna 8:
+taula_col8 <- table(Abs_Norm$Hit.target, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col8)
+
+# Columna 9:
+taula_col9 <- table(Abs_Norm$Education, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col9)
+
+# Columna 10:
+taula_col10 <- table(Abs_Norm$Son, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col10)
+
+# Columna 11:
+taula_col11 <- table(Abs_Norm$Social.drinker, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col11)
+
+# Columna 12:
+taula_col12 <- table(Abs_Norm$Social.smoker, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col12)
+
+# Columna 13:
+taula_col13 <- table(Abs_Norm$Pet, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col13)
+
+# Columna 14:
+taula_col14 <- table(Abs_Norm$Weight, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col14)
+
+# Columna 15:
+taula_col15 <- table(Abs_Norm$Height, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col15)
+
+# Columna 16:
+taula_col16 <- table(Abs_Norm$Body.mass.index, AbsentismeFinal$Absenteeism.time.in.hours)
+CramerV(taula_col16)
+
+# Elimine les taules de contingència:
+remove(taula_col1,taula_col2,taula_col3,taula_col4,taula_col5,taula_col6,taula_col7,taula_col8,taula_col9,taula_col10,taula_col11,taula_col12,taula_col13,taula_col14,taula_col15,taula_col16)
+```
+
+Els resultats són que les columnes amb més significació són, ordenats de major a menor:
+
+Per damunt de 30:
+
+- Distance.from.Residence.to.Work (la 4)
+- Weight (la 14)
+- Transportation.expense (la 3)
+- Age (la 6)
+- Service.time (la 5)
+- Body.mass.index (la 16)
+
+Les maajors de 20:
+
+- Height (la 15)
+- Work.load.Average.day (la 7)
+- Son (la 10)
+
+Les majors de 15:
+
+- Month.of.absence (la 1)
+- Hit.target (la 8)
+
+A la PCA coincidien prou columnes, però estaven també representades com importants la de social drinker (la 11, amb significancia del 0.12) i  education (la 9 amb significancia del 0.09).
+
+A més d'això hem de recordar que volem establir models que ens ajuden a contractar treballadors, no analitzar treballadors actuals. Per tant columnes com la del temps de servei, o objectius aconseguits no són tan claus. Per exemple la del temps de servei estava també molt correlacionada amb l'edat.
+
+Per altra banda, les columnes de l'altura i el pes es poden resumir en el BMI del treballador. Faig per tant l'elecció tenint en compte aquests aspectes. Guarde:
+
+- Distància al lloc de treball
+- Cost de transport 
+- Edad
+- BMI 
+- Treball diari 
+- Fills 
+- Mes d'absència 
+- Bebedor social 
+- Educació 
+
+```{r}
+# Guarde les columnes per significància:
+sig30 <- c("Transportation.expense","Distance.from.Residence.to.Work","Age","Education","Social.drinker","Body.mass.index")  # hi ha 6 columnes
+sig20 <- c("Transportation.expense","Distance.from.Residence.to.Work","Age","Education","Son","Work.load.Average.day","Social.drinker","Body.mass.index")  # hi han 8 columnes
+sig15 <- c("Month.of.absence","Transportation.expense","Distance.from.Residence.to.Work","Age","Education","Son","Work.load.Average.day","Social.drinker","Body.mass.index")  # hi han 9 columnes
+```
+
+Així podem aconseguir tres vistes de les dades amb moltes menys columnes que el dataset original.
+
+## Exercici 1
+
+### Es genera un model no supervisat.
+El model no supervisat que generaré serà a partir de l'algorisme k-means. Per a aquest exercici utilitzaré el màxim nombre de columnes, és a dir sig15, per tal de veure com podriem fer conjunts semblants de treballadors.
+
+El primer que hauré de fer és avaluar quin és el nombre més òptim de clusters.
+
+```{r}
+# Escollim el dataset amb la variable target omesa:
+DS_unsupervised <- Abs_Norm[sig15]
+
+# Escalem les dades
+Uns_scale <- scale(DS_unsupervised)
+
+# Fem l'anàlisi pel mètode del colze:
+# Sembla que seria k = 5. Faig una segona prova
+fviz_nbclust(Uns_scale, kmeans, method = "wss")
+
+# També sembla que seria k = 5
+fviz_nbclust(Uns_scale, kmeans, method = "silhouette")
+
+```
+
+Pel que s'ha pogut comprovar pels mètodes de siluetes mitjanes i de colze el nombre més optim per les dades seria de k = 5. Ara aplicaré l'algorisme per després comentar-lo:
+
+```{r}
+kmeans_1 <- kmeans(Uns_scale, 5)
+```
+
+### S'analitzen, mostren i comenten les mesures de qualitat del model generat.
+
+A continuació mostraré aquelles columnes que tenien més significancia (>30) per veure com s'han repartit els clusters. Concretament mostraré:
+
+- El cost del transport
+- Distancia al lloc de treball
+- Edad
+- Educació
+- Bebedor social
+- BMI
+
+```{r}
+# Mostre l'assignació real i la del k-means
+x <- Abs_Norm[sig30]
+plot(x, col = kmeans_1$cluster, main="Assignació K-means")
+plot(x, col = as.factor(AbsentismeFinal$Absenteeism.time.in.hours), main="Assignació real")
+```
+
+Una vegada mostrades les columnes principals, procedisc a mostrar la qualitat del model generat:
+
+```{r}
+print(kmeans_1)
+```
+
+### Es comenten les conclusions.
+
+Com es pot veure a la suma dels quadrats per cluster, l'encert és d'un 46%. Es pot observar que no és molt bon ajust i que hi han dades no agrupades correctametn. Així i tot de l'anàlisi visual s'hi poden extraure les següents conclusions:
+
+**El cost del transport:**
+S'hi pot veure que els treballadors que més gasten són els pitjors agrupats (molts no tenen grup). Sembla que s'han agrupat bé els que paguen poc i els que paguen d'intermig (els punts rojos i verds)
+
+**Distancia al lloc de treball:**
+Comparant-ho amb la columna del cost de transport, s'hi veu que efectivament els treballadors que estan més a prop paguen menys. Una vegada més, les dades més elevades no s'han agrupat del tot correctament.
+
+**Edat:**
+Comparant-ho amb les dues columnes anteriors, s'hi veu que els més joves viuen mitjanament més prop del lloc de treball, i que per tant gasten menys. Hi destaquen els punts rojos que semblen estar ben agrupats per edat, representant als majors.
+
+**Educació:**
+A la columna d'educació s'hi veu que és on més difícil de llegir és. La gent amb poca educació formativa no es discerneix massa, però en canvi s'hi pot veure que la gent amb estudis sol ser gent jove amb vivenda pròxima al lloc de treball (punts verds)
+
+**Bebedor social:**
+En aquesta columna tampoc s'hi poden extraure massa conclusions, més que sembla que els jóvens són els que menys alcohol beuen (punts verds), mentre que els més majors beuen més (rojos)
+
+**BMI:**
+En aquesta columna les dades són un poc més complicades de llegir. Principalment, s'hi veu en comparació amb els costos de transport, que els jovens (punts verds) ténen un BMI inferior a la mitja. Possiblement perquè siguen més actius o vagen al lloc de treball a peu. No ho podem saber, però si sabem que ells ténen menys despeses que la mitjana dels treballadors, a més d'un BMI relativament inferior.
+
+Observant les dades, en general, s'hi pot intuïr que tal vegada un algorisme no supervisat basat en distàncies no donarà bons resultats en aquest dataset, ja que les dades no estan molt ben agrupades.
+
+A banda de les conclusions observades a l'anàlisi visual, s'intueix que cal millorar el model per tenir un ajust més precís.
+
+## Exercici 2
+
+### Es genera de nou el model no supervisat anterior, però usant una mètrica de distància diferent. A més, es mostren i es comenten les mesures de qualitat del model generat.
+
+Per a aquesta segona prova, provaré ara a fer l'agrupació amb les dades de sig30 (mínimes), per veure si el model millora o empijora respecte de l'anterior. Per fer açò, tornaré a cercar quin és el nombre més optim de clusters per aquest dataset:
+
+```{r}
+# Escollim el dataset amb la variable target omesa:
+DS_unsupervised <- Abs_Norm[sig30]
+# Escalem les dades
+Uns_scale <- scale(DS_unsupervised)
+
+# Fem l'anàlisi pel mètode del colze:
+# Sembla que seria k = 2. Faig una segona prova
+fviz_nbclust(Uns_scale, kmeans, method = "wss")
+
+# També sembla que seria k = 2
+fviz_nbclust(Uns_scale, kmeans, method = "silhouette")
+```
+
+Per ambdós test, s'hi veu que més o menys hauria de tenir 2 clusters principals. Aquest nombre, a més, coincideix amb les opcions de contractar o no, així que vaig a generar el model per veure com funciona l'ajust:
+
+```{r}
+# Genere el nou model
+kmeans_2 <- kmeans(Uns_scale, 2)
+
+# Mostre la seua qualitat:
+print(kmeans_2)
+
+```
+
+Veig que les l'ajust ha empijorat considerablement, ja que no aconseguim ni un 30%. Als test de selecció de clusters semblava que també era optim el k=5 altra vegada, així que prove amb aquest:
+
+```{r}
+# Genere el nou model
+kmeans_3 <- kmeans(Uns_scale, 5)
+
+# Mostre la seua qualitat:
+print(kmeans_3)
+```
+
+En aquest s'hi veu una millora substancial respecte el k=2, amb un ajust del a sobre del 50%. Aquestes dades ja són més favorables perquè gran part de les dades han estat agrupades. 
+
+Per acabar de llevar-me els dubtes, vull provar finalment amb un model k-means per les columnes de significació major a 20. Així es poden comparar molt bé totes tres. Com abans, primer comprove el nombre òptim de clusters:
+
+```{r}
+# Escollim el dataset amb la variable target omesa:
+DS_unsupervised <- Abs_Norm[sig20]
+# Escalem les dades
+Uns_scale <- scale(DS_unsupervised)
+
+# Fem l'anàlisi pel mètode del colze:
+# Sembla que seria k = 2. Faig una segona prova
+fviz_nbclust(Uns_scale, kmeans, method = "wss")
+
+# També sembla que seria k = 2
+fviz_nbclust(Uns_scale, kmeans, method = "silhouette")
+```
+
+Una vegada més, sembla que el nombre optim de clusters és 5. Genere el model i comprove l'ajust:
+
+```{r}
+# Genere el nou model
+kmeans_4 <- kmeans(Uns_scale, 5)
+
+# Mostre la seua qualitat:
+print(kmeans_4)
+```
+
+S'hi pot veure que tot i que l'ajust és prou bo, no supera al model anterior. Ara que ja tenim les dades tractades de diverses maneres, procediré a comparar-les:
+
+### Addicionalment es comparen els dos models no supervisats amb mètriques de distància diferents.
+
+Del primer exercici i dels models generats en aquest, sembla que el nombre de clusters més optim per a tots els models és k=5. Per tant compararé el resultat del primer exercici amb les dades de significació 15 i k=5, amb el millor model aconseguit en aquest exercici, essent el de les dades de significació 30 i k=5.
+
+```{r}
+# Mostre l'assignació real i la del k-means k=5, per a les columnes de la sig 30 com a l'exercici 1
+x <- Abs_Norm[sig30]
+plot(x, col = kmeans_1$cluster, main="Assignació K-means_1 sig15 k=5")
+plot(x, col = kmeans_3$cluster, main="Assignació K-means_3 sig30 k=5")
+plot(x, col = as.factor(AbsentismeFinal$Absenteeism.time.in.hours), main="Assignació real")
+```
+
+Com a l'exercici anterior, s'hi veu que el nou model té encara algunes dades per assignar, però que així i tot s'han pogut agrupar. De l'anàlisi visual del segon model de k-means s'extrau:
+
+**El cost del transport:**
+En aquest s'hi veu que els treballadors que més gasten s'han agrupat decentment amb el color blau clar. En roig s'han mantés els que menys. Destaca que el grup blau s'ha fet molt heterogeni en aquest model.
+
+**Distancia al lloc de treball:**
+Comparant-ho amb la columna del cost de transport, s'hi veu que s'han assignat als que més gasten i més lluny estan, principalment el color blau.
+
+**Edat:**
+Mirant l'edat veiem que els joves són els que més lluny solen estar del lloc de treball i més gasten. Açò contradiu al model anterior.
+
+**Educació:**
+La columna d'educació ara es llig a l'inrevés, sols es pot analitzar correctament per als que no tenen estudis. S'hi veu molta gent jove sense estudis i també que són els que més solen gastar-se anant al treball / més lluny estan.
+
+**Bebedor social:**
+Les dades en aquest model poden llegir-se millor que en l'anterior, ja que ara tenim més resultats dels treballadors que beuen. Serien principalment joves que viuen relativament lluny del lloc de treball. Aquestes dades també contrasten amb el model anterior.
+
+**BMI:**
+En aquesta es torna a poder llegir relativament bé, ja que ara veiem altra vegada que els jovens són els que menys BMI tenen. Hi destaquen els punts verds, que representen als treballadors amb sobrepés. A partir d'aquesta observació es pot veure que els treballador més grossos solen beure alcohol, no tenen estudis, solen ser majors, i viuen a una distància intermitja, amb despeses també mitjanes.
+
+
+### Es comenten les conclusions.
+Ambdós models xoquen prou en algunes assignacions, a més ambdós no tenen un bon ajust. Ja que cap d'ells aplega al 70%. Les conclusions extretes a cada columna poden ser útils per agrupar els tipus de treballadors, però a causa del gran contrasts d'ambdós models, sembla que no és profitós.
+
+Com anava comentant, sembla que l'estudi per k-means no és el més apropiat per aquest dataset, perquè hi ha molt poca agrupació de les dades i estan molt mesclades entre si.
+
+S'observa que l'elecció de les columnes de sig30 ha donat uns millors resultats en quant a l'ajust, però també ens ha reduït les dades que disposem per agrupar als treballadors. En ambdós, s'ha comprovat que el millor nombre de clusters era de k=5
+
+Tot i que crec que els models no s'ajusten molt bé a les nostres necessitats, la informació extreta en aquests anàlisis pot ser útil si es contrasta amb altres mesures de selecció de personal. No recomane, però, que s'utilitzen sols aquestes dades per haver de fer cerques concretes.
+
+Al capdavall, reitere que aquest algorisme no és el millor per el nostre projecte.
+
+```{r}
+# Neteja de dades:
+remove(kmeans_1)
+remove(kmeans_2)
+remove(kmeans_3)
+remove(kmeans_4)
+remove(Uns_scale)
+remove(x)
+```
+
+## Exercici 3
+
+### S'apliquen els algorismes DBSCAN i OPTICS de forma correcta.
+
+Ja que als exercicis anteriors s'ha vist que els millors resultats per als algorismes basats en distància era el dataset amb les columnes de significància 30, em quedaré amb aquest per tal de provar els algorismes DBSCAN i OPTICS.
+
+```{r}
+# Corregist el dataset a les columnes interessades
+DS_unsupervised <- Abs_Norm[sig30]
+
+# Escalem les dades
+Uns_scale <- scale(DS_unsupervised)
+
+# DBSCAN prova inicial. Utilitzaré directament optics per poder apreciar millor les agrupacions:
+opt <- optics(Abs_Norm, minPts = 5)
+exdbs1 <- extractDBSCAN(opt, eps_cl = 0.7)
+plot(exdbs1, main="Prova inicial. E=0.7 mpts= 5")
+
+```
+
+Veiem que aquesta primera agrupació hi han unes quantes dades pendents d'agrupar, i a més hi ha molts més clusters dels que necessitem. Ja que suposem que n'hauriem d'aconseguir 5 més o menys (en base als exercicis anteriors).
+
+Primer vaig a perfilar els eps i mpts més eficients i després mostraré el resultat de l'anàlisi amb les columnes del sig30. Així es podran comparar els resultats amb els exercicis anteriors.
+
+### Es proven, descriuen i interpreten els resultats amb diferents valors d'eps.
+Continue amb diverses proves:
+
+```{r}
+opt <- optics(Abs_Norm, minPts = 15)
+exdbs2 <- extractDBSCAN(opt, eps_cl = 0.9)
+plot(exdbs2, main="Optics 1. E=0.9 mpts= 15")
+```
+
+En aquesta segona prova s'observen 5 agrupacions, com esperem, però amb unes quantes dades que no s'han pogut agrupar. Continue:
+
+```{r}
+opt <- optics(Abs_Norm, minPts = 40)
+exdbs3 <- extractDBSCAN(opt, eps_cl = 0.99)
+plot(exdbs3, main="Optics 2. E=0.99 mpts= 40")
+```
+
+En auqest he volgut comprovar un extrem dels mpts. Sembla que augmentar-los molt és cotraproduent, perquè no podem aconseguir el nombre de clsuters requerit. Tenim 4 i així i tot moltes dades per agrupar. Continue:
+
+```{r}
+opt <- optics(Abs_Norm, minPts = 20)
+exdbs4 <- extractDBSCAN(opt, eps_cl = 0.99)
+plot(exdbs4, main="Optics 3. E=0.99 mpts= 20")
+```
+
+En aquest tercer anàlisi d'optics hem aconseguit 4 clusters, amb les dades no seleccionades reduïdes al màxim. Ironicament s'assembla molt al optics 2. Continue:
+
+```{r}
+opt <- optics(Abs_Norm, minPts = 12)
+exdbs5 <- extractDBSCAN(opt, eps_cl = 0.99)
+plot(exdbs5, main="Optics 4. E=0.99 mpts= 12")
+```
+
+En aquesta última, s'ha intentat reduïr al màxim les dades que no es poden agrupar, mentre es mantenen les 5 agrupacions. Trobe que tal vegada és el millor resultat que es pot assolir. 
+
+S'hi veu clarament que el optics_4 té el millor ajust que hem aconseguit, ja que és el que menys dades deixa per agrupar, amb grups semblants al que podiem esperar als exercicis anteriors.
+
+Considere, per tant, que aquest és el més interessant d'analitzar i comparar amb la resta. Per tant mostre les seues columnes com als exercisis anteriors per poder-los comparar:
+
+```{r}
+hullplot(DS_unsupervised[c(1,3)],exdbs5)
+```
+
+### Es comparen els resultats obtinguts dels models anteriors i DBSCAN.
+
+Amb el hullplot anterior ja s'hi veu el problema que s'havia detectat abans. Les dades són molt disperses i no poden agrupar-se correctament amb algorismes basats en distància.
+
+Si procure reduïr el nombre de clusters generat en l'anàlisi optics i bdscan resulta el mateix problema:
+
+```{r}
+opt <- optics(Abs_Norm, minPts = 40)
+exdbs6 <- extractDBSCAN(opt, eps_cl = 1.1)
+plot(exdbs6, main="Optics 4. E=1.1 mpts= 40")
+hullplot(DS_unsupervised[c(1,3)], exdbs6)
+```
+
+Els clusters que s'aconsegueixen es sobreposen, i per tant no generen bons resultats. En el únic punt on es genera una bona agrupació, també perquè no hi ha alternativa per distància, és en els bebedors socials (ja que són 1 o 0):
+
+```{r}
+hullplot(DS_unsupervised[c(1,5)], exdbs6)
+```
+
+Per tant es pot concloure que les agrupacions aconseguides a partir de k-means poden resultar més útils que les del BDSCAN/Optics, ja que les dades, com comentava, no estan ben agruapades en grups.
+
+Tot i ser imprecises, les dades del k-means poden servir per extraure informació de contrast.
+
+### Es comenten les conclusions.
+
+En general, i com ja s'ha anat comentant al llarg dels exercicis, sembla que aquest dataset no és molt bo per fer-li agrupacions amb algorismes basats en distància.
+
+Com comentava, l'algorisme k-means en aquest cas és més útil que el de BDSCAN per als resultats que volem optenir. Més que res perquè la qualitat de l'agrupació del BDSCAN és pèssima perquè es sobreposen els clusters.
+
+Amb tot, s'hauria de comunicar al departament de recursos humans els resultats del k-means com a informació de contrast de la resta d'anàlisis. No tant com a mesura de selecció o cerca de personal. Sembla que amb les dades que tenim, no es poden agrupar els treballadors correctament per tipus.
+
+```{r}
+# Neteja de variables:
+remove(exdbs1,exdbs2,exdbs3,exdbs4,exdbs5,exdbs6,opt,Uns_scale,DS_unsupervised)
+```
+
+
+## Exercici 4
+
+Per fer l'arbre provaré d'elaborar-lo a partir dels tres datasets de significància treballats anteriorment. És a dir, provaré un arbre general amb les columnes de significació majors a 0.15 i després provaré variants de l'arbre amb les altres dades fent de poda. 
+
+La idea d'aquest algorisme és classificar els treballadors segons si al nostre client li interessaria contractar-lo, o no. Recorde que el criteri amb el que s'havia discretitzat aquesta inforamció era que  amb menys o 2 hores d'absència al treball es considerava una falta normal. Més de 2 hores s'havia considerat que no es recomanava contractar aquest tipus de treballador.
+
+Així doncs, elabore les dades necessàries per crear els arbres i n'extrauré les regles principals.
+
+### Es generen regles i es comenten i interpreten les més significatives.
+
+```{r}
+# Guarde ara les dades discretitzades a una copia. Utilitze per a l'arbre les dades numeriques sense normalitzar per poder llegir les regles i que tinguen més sentit que amb els valors normalitzats. Pel que he pogut cercar, aquesta decisió no afecta al resultat de l'arbre: https://datascience.stackexchange.com/questions/5277/do-you-have-to-normalize-data-when-building-decision-trees-using-r
+
+# Genere la copia:
+data <- AbsentismeNormal
+
+# Randomitze les dades:
+set.seed(1)
+datard <- data[sample(nrow(data)),]
+
+# Columnes de sig. 0.3:
+D30 <- datard[,sig30]
+
+# Columnes de sig. 0.2:
+D20 <- datard[,sig20]
+
+# Columnes de sig. 0.15:
+D15 <- datard[,sig15]
+```
+
+Ara que ja estan les dades randomitzades i seleccionades vaig a dividir les dades en mostres de prova i entrenament. 2/3 per la d'entrenament i 1/3 per la de prova.
+
+```{r}
+# Definisc la variable target:
+set.seed(422)
+y <- datard[,17]
+
+# Prepare la resta:
+Ax <- D30
+Bx <- D20
+Cx <- D15
+
+# Dividisc les dades:
+split <- 3
+max_split<-floor(nrow(Ax)/split)
+tr_limit <- nrow(Ax)-max_split
+test_limit <- max_split*2+1
+
+# Valors target:
+try <- y[1:tr_limit]
+testy <- y[test_limit:nrow(Ax)]
+
+# Valors Ax:
+trAx <- Ax[1:tr_limit,]
+testAx <- Ax[test_limit:nrow(Ax),]
+
+# Valors Bx:
+trBx <- Bx[1:tr_limit,]
+testBx <- Bx[test_limit:nrow(Ax),]
+
+# Valors Cx:
+trCx <- Cx[1:tr_limit,]
+testCx <- Cx[test_limit:nrow(Ax),]
+```
+
+Ara que ja tinc les dades seleccionades per fer l'entrenament de l'arbre i el seu test, comprove rapidament que les dades s'han inserit correctament i que les dimensions són les esperades:
+
+```{r}
+# Dades d'entrenament:
+str(try)
+dim(trAx)
+dim(trBx)
+dim(trCx)
+
+# Dades de test:
+str(testy)
+dim(testAx)
+dim(testBx)
+dim(testCx)
+```
+
+Totes les variables s'han emplenat amb les dades i columnes correctes. Per tant ara generaré una primera prova dels arbres de decisió:
+
+```{r}
+
+tryf = as.factor(try)
+
+modelAx <- C50::C5.0(trAx, tryf, rules=TRUE)
+modelBx <- C50::C5.0(trBx,tryf,rules=TRUE)
+modelCx <- C50::C5.0(trCx,tryf,rules=TRUE)
+```
+
+Aquests arbres són una primera vista a la solució d'aquest model. S'han fet els tres sense boost per veure quina és la taxa d'error de cadascun i així esbrinar quin és el més interessant de mantenir.
+
+### Comparació de les taxes d'error i matrius de confusió
+
+En aquest apartat vaig a comparar les taxes d'error de cadascun dels arbres generats per veure quin és el més interessant de mantenir. Després generaré les seues matrius de confusió per comprovar també com s'ajusten al dataset.
+
+A partir d'aquest anàlisi, al següent apartat seleccionaré un arbre definitiu per analitzar les seues regles i mostraré la seua representació gràfica.
+
+Així doncs, mostre els arbres:
+
+```{r}
+summary(modelAx)
+summary(modelBx)
+summary(modelCx)
+```
+
+S'hi pot observar que els tres arbres tenen prou bons marges d'error. 
+
+- El primer, **Ax**, amb les columnes de significància majors al 0.30, ha aconseguit un error del 36%.
+
+- El segon, **Bx**, amb les columnes de significància majors al 0.20, ha aconseguit un error del 33.2%. Una millora respecte a l'anterior.
+
+- Finalment el tercer, **Cx**, amb les columnes de significància majors al 0.15, ha aconseguit un error del 28.7%. També millora respecte de l'anterior.
+
+Aquestes dades no són gens roïns per a arbres generats sense boost. Comprovaré ara el seu comportament amb les dades de test, i generaré la seua matriu de confusió. Adicionalment imprimiré la seua precisió:
+
+```{r}
+# Percentatge d'encerts:
+predicted_model <- predict( modelAx, testAx, type="class" )
+print(sprintf("La precisió de l'arbre és del: %.4f %%",100*sum(predicted_model == testy) / length(predicted_model)))
+
+# matriu de confusió:
+# Mostre la matriu de confusió
+mat_conf<-table(testy,Predicted=predicted_model)
+mat_conf
+```
+
+Per al primer arbre, s'hi veu que té una precisió del 59.2% i la matriu de confusió tendeix a afavorir els falsos positius (49). S'ha de destacar que aquest arbre genera més falsos negatius que positius reals. 
+
+Per tant ens indica que hi ha molta gent que podria treballar productivament i no es contracta, mentre que hi ha molta gent que es contracta que no va a ser productiu.
+
+```{r}
+# Percentatge d'encerts:
+predicted_model <- predict( modelBx, testBx, type="class" )
+print(sprintf("La precisió de l'arbre és del: %.4f %%",100*sum(predicted_model == testy) / length(predicted_model)))
+
+# matriu de confusió:
+# Mostre la matriu de confusió
+mat_conf<-table(testy,Predicted=predicted_model)
+mat_conf
+```
+
+En el segon arbre veiem que la precisió és del 60.6%, quasi igual a l'arbre anterior. La diferència es troba a la matriu de confusió, ja que aquest arbre dóna un pijor resultat que l'anterior.
+
+En aquest el problema dels falsos positius augmenta i és molt més superior que els positius reals (FP = 75 vs PR = 10). Per tant tenim un resultat en que l'arbre classifica sobretot als treballadors que no serien productius com treballadors productius.
+
+```{r}
+predicted_model <- predict( modelCx, testCx, type="class" )
+print(sprintf("La precisió de l'arbre és del: %.4f %%",100*sum(predicted_model == testy) / length(predicted_model)))
+
+mat_conf<-table(testy,Predicted=predicted_model)
+mat_conf
+```
+
+Finalment per al tercer arbre veiem que la precisió segueix igual, amb un 60.2%, i la matriu de confusió repeteix els problemes anteriors.
+
+Veiem com els falsos positius segueixen essent un problema, i segueixen sent més que els positius reals (FP = 61 vs PR = 24). Mantenim per tant els problemes anteriors
+
+### Comparació dels millors arbres per poda i boost:
+
+Havent observat els resultats que ens han donat els arbres, queda clar que no hi ha molta millora d'uns a altres. Tot i que l'error baixa d'un arbre al següent, el problema principal, el dels falsos positius, persisteix.
+
+He provat també a fer l'arbre a partir de totes les columnes del dataset i tot i que millorava la precisió i l'error, el problema dels falsos positius persistia.
+
+És per això que he volgut fer una comparació final entre els arbres que més interés m'han despertat: el Ax per la seua baixa taxa de FP (en comparació), i el Cx pel seu baix error.
+
+Imprimiré amdós ara amb boost:
+
+```{r}
+# Genere els models amb boost:
+modelAxt <- C50::C5.0(trAx,tryf, trials = 10)
+modelCxt <- C50::C5.0(trCx,tryf, trials = 10)
+summary(modelAxt)
+summary(modelCxt)
+```
+
+Per una banda tenim que el primer arbre, Ax, manté la taxa d'error del 36.7%; mentre que el segon, Cx, té la mateixa taxa d'error del 29% (abans era del 28.7%).
+
+Al primer el boost no ha tingut un efecte pel nombre elevat d'errors, mentre que al segon s'han aconseguit fins a cinc intents. Cal notar que l'error en cada intent superava per molt l'error del primer arbre, amb alguns pasos amb un error major del 45%.
+
+Al capdavall, tot i que el segon arbre té una taxa d'error menor amb i sense boost, el problema dels falsos positius considere que és suficientment greu com per no escollir aquest. Recorde que aquest classificava quasi tres vegades més el nombre de falsos positius que el de positius reals.
+
+El primer arbre, l'Ax, tot i tenir un error en l'assignació prou elevada, la precisió era quasi igual que al arbre Cx. Així mateix, el nombre de falsos positius sols era un poc major (PR = 36, FP = 49).
+
+Segueixen essent dades dolentes, però són molt millors que les del arbre Cx, que les assignacions correctes eren ínfimes.
+
+### Arbre definitiu i representació gràfica:
+
+Per tot el que he explicat prèviament, considere que el millor model de classificació per al nostre client és l'Ax. Açò és, sobretot, perquè el client estava especialment preocupat en tenir treballadors productius. Per tant, augmentar injustificadament, i desproporcionalment, el nombre de falsos positius seria un gran error.
+
+Amb tot, mostre l'arbre i la seua representació:
+
+```{r}
+# Mostre l'arbre:
+summary(modelAx)
+
+# Mostre la seua precisió i la matriu de confusió:
+# Percentatge d'encerts:
+predicted_model <- predict( modelAx, testAx, type="class" )
+print(sprintf("La precisió de l'arbre és del: %.4f %%",100*sum(predicted_model == testy) / length(predicted_model)))
+
+# matriu de confusió:
+# Mostre la matriu de confusió
+mat_conf<-table(testy,Predicted=predicted_model)
+mat_conf
+```
+
+```{r}
+# Mostre la seua representació gràfica:
+plotmodel <- C50::C5.0(trAx,tryf)
+plot(plotmodel)
+```
+
+**Les seues normes són:**
+
+1. Si el treballador tindria més despeses que 228 no es contracta.
+
+2. Si el treballador tindria unes despeses menors o iguals a 228, es mira si beu alcohol.
+
+2.1  Si el treballador tindria unes despeses menors o iguals a 228 i beu alcohol no es contracta.
+
+2.2 Si el treballador tindria unes despeses menors o iguals a 228 i no beu alcohol es contracta.
+
+### Es comenten les conclusions.
+
+El arbre final que s'ha obtingut en aquest model és útil si es vol automatitzar la selecció de personal, però trobe que serviria realment sols com a suport d'una entrevista prèvia. Tot pel gran nombre d'errors i falsos positius.
+
+Amb una precisió del 60%, té unes normes molt senzilles d'interpretar pel client. Per posar en context que significa que el seu cost de transport siga menor o no de 228 imprimiré ara els valors de la columna:
+
+```{r}
+#Mostre les dades úniques:
+sort(unique(AbsentismeNormal$Transportation.expense))
+# Mostre el resum de les dades:
+summary(AbsentismeNormal$Transportation.expense)
+```
+
+S'hi veu clarament que aquest nombre fa referència (s'hi aproxima) a la mediana de les dades, un poc més elevada que la mitjana d'aquestes. Per tant simplement s'hauria de calcular, per part del client, el cost aproximat de transport fins al lloc de treball i a partir d'ahi vigilar.
+
+Aquest arbre no s'hauria d'aplicar com a tal, perquè perfectament el client podria cercar un lloc per la seua fàbrica on hi haja molt de transport públic o la distància siga mínima (al centre urbà). Per tant els costos de transport baixarien i entrarien més treballadors.
+
+Pel que sembla, és clar que un treballador entraria a treballar més eficaçment si no beu alcohol. Tot i que si viu prop del lloc de treball no es miraria aquesta dada.
+
+Al capdavall, aquest model ha de servir de suport a altres formes de selecció de personal, no ha de servir com a única opció. Ja que a la gràfica s'observa que molts falsos negatius, per exemple, és perquè ténen despeses elevades (que no seria problema perquè serien productius si poden mantenir-se amb el seu sou). Indepdendentment, és útil sobretot com a contrast amb altres formats de selecció de personal.
+
+## Exercici 5
+
+En aquest exercici he volgut provar l'algorisme K-NN. He vist que també serveix per a models de classificació, així que crec que serà interessant comparar els resultats amb l'exercici anterior.
+
+Seguint els exemples de la referència que he utilitzat, prepararé les dades per poder entrenar el model i després avaluar-lo:
+
+```{r}
+# Referència:
+# https://towardsdatascience.com/k-nearest-neighbors-algorithm-with-examples-in-r-simply-explained-knn-1f2c88da405c
+
+# Se'ns recomana utilitzar les dades normalitzades, així que les guardaré en noves variables:# Genere la copia:
+dataknn <- Abs_Norm
+
+# Randomitze les dades:
+set.seed(1)
+datardk <- dataknn[sample(nrow(dataknn)),]
+
+# Columnes de sig. 0.3, ja que són les que he escollit a l'exercici anterior al final:
+KD15 <- datardk[,sig30]
+```
+
+Una vegada tinc les dades preparades, guarde les dades d'entrenament i de testeig, com a l'arbre, per provar aquest model.
+
+Finalment imprimiré la precisió obtinguda i la seua matriu de confusió:
+
+```{r}
+# Definisc la variable target:
+set.seed(422)
+y <- datard[,17]
+
+# Prepare la resta:
+KNN <- KD15
+
+# Valors KNN:
+trKNN <- KNN[1:tr_limit,]
+testKNN <- KNN[test_limit:nrow(KNN),]
+
+# Ací es duplica, perquè procure replicar el codi d'exemple i partia del meu codi.
+
+# Agafe les dades i les seleccione per al test:
+Knn_train <- trKNN
+knn_test <- testKNN
+
+# Agafe la columna target:
+target <- try
+test <- testy
+
+# Cree el Knn:
+pr <- knn(Knn_train,knn_test,cl=target,k=40)
+
+# Matriu de confusió:
+tab <- table(pr,test)
+
+certesa <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
+
+# Mostre la precisió:
+print(sprintf("La precisió del model K-NN és del: %.4f %%",certesa(tab)))
+
+# Mostre la matriu de confussió:
+print(tab)
+```
+
+### Conclusions del nou model:
+
+Com es pot comprovar, aquest model de classificació és molt millor que els obtingut a partir dels arbres. No solament la precisió puja fins un 65%, sinó que també es soluciona el problema dels falsos positius (sols agafa 14). Aquest model de classificació té, però molts falsos negatius (60)
+
+Considere que aquest model és una millora important respecte dels anteriors perquè aquest sí serviria correctament per la selecció de personal. El nostre client estava especialment preocupat per contractar sols treballadors productius, i aquest model ens assegura que la majoria dels treballadors contractats seran productius.
+
+Sí és cert que hi hauran molts treballadors hàbils per al lloc de treball que no l'aconseguiran (FN = 60), però si el client prepara amb suficient antelació la deslocalització de la seua productivitat, aquest seria el millor model per traslladar-se, per ser més conservador i per tant segur.
+
+## Exercici 6
+
+### Identifica quines possibles limitacions tenen les dades que has seleccionat per obtenir conclusions amb els models (supervisat i no supervisat)
+
+Aquest dataset, com s'ha anat veient a l'execució dels exercicis, funciona molt millor en models de classificació supervisats que no amb models no supervisats basats en distància.
+
+Els primers algorismes, K-means i BDSCAN/Optics, han donat resultats molt inconcisos que aporten poc al coneixement que demanava el nostre client. A més, s'hi podien extraure millors conclusions a través de l'anàlisi visual que es va fer a la pràctica_1.
+
+Per contra, els algorismes supervisats han funcionat molt millor en la classificació de les dades. Els arbres tenien el problema d'un gran nombre de falsos positius en relació als positius reals, cosa que els feia inviables per utiltizar-los per si mateixos per la selecció de personal. En canvi, el model K-NN ha demostrat ser el més eficient de tots, i amb la menor confussió (solucionant els problemes dels FP a canvi d'augmentar els FN. Un problema menor per al client)
+
+Amb tot, crec que aquest dataset sí serviria per acconsellar al nostre client en la seua cerca de personal productiu, però com he comentat a pràcticament tots els punts, tots els models generats haurien de contrastar-se amb altres mètodes com l'anàlisi de les dades visualment o entrevistes de treball.
+
+### S'identifiquen possibles riscos de fer servir el model (mínim 300 paraules).
+
+Els riscos principals són els ben bé ja he anat comentant al llarg del projecte. El nostre client necessitaria compaginar aquestes ferramentes amb altres mètodes de selecció de personal.
+
+L'anàlisi visual de les dades (pràctica_1) donava molta informació clau que podrien utilitzar els departaments de recursos humans per la selecció de les dades. Informació que en els models presentats, supervisats o no, no es tenen en compte. 
+
+Per exemple, sabíem que hi havien dies que els treballadors tenien més hores absents. Al igual que hi havien mesos amb més absències. Totes aquestes dades, clau per a la selecció del personal (que no podem saber perquè depenen de la jornada que instaure el client) no es tenen en compte.
+
+Per altra banda, pel que fa als models no supervisats, les seues dades són difícils de llegir. És cert que aconsegueixen agrupar les dades, sobretot al mètode de k-means, però aquestes dades no aporten molta més informació de la que aportava l’anàlisi visual de les dades. Per això remarcava que aquest havia de servir per contextualitzar l’altre anàlisi, i no fer-lo servir de manera independent.
+
+L’anàlisi DBSCAN/Optics no ha resultat ser satisfactori perquè les dades estaven poc agrupades i desordenades, generant caixes que es sobreposaven. No tinc molt a comentar sobre aquest, ja que no ha funcionat com s’esperava.
+
+Pel que fa als models supervisats s’ha vist que poden ser útils per la selecció de personal. Els arbres de decisió tenen molts riscos d’aplicar-se, ja que el client podria estar contractant molts treballadors potencialment poc productius. Açò després repercutira amb la nostra imatge d'assessoria i empitjoraria la nostra relació amb el client. A més, la credibilitat per predir l’activitat laboral al Brasil cauria i no seria gens bo per al nostre negoci.
+
+El millor de tots els models sembla ser el de K-NN, amb uns falsos positius reduïts a costa d’un alt nombre de falsos negatius. Els principals riscos d’aquest és que igualment es van a contractar treballadors no productius, però seran menys. A més la contractació de personal seria més lenta perquè s’hauria de descartar molts candidats que sí serien productius.
+
+Amb tot, com he reiterat moltes vegades, s’ha de transmetre al client que aquests models són compatibles entre ells, però cap d’ells ha d’utilitzar-se en exclusiu. **De necessitar un sol model per automatitzar la selecció de personal, recomanaria el model K-NN i compaginar-lo amb l’anàlisi visual de les dades** i altres mecanismes propis del departament de recursos humans. De no ser aquest el cas, totes les ferramentes ajudarien a extraure coneixement, tenint en compte els riscos comentats prèviament.
+
+
